@@ -30,8 +30,13 @@ namespace jobscraper
 } // namespace jobscraper
 
 //  log macros
+#ifdef DEBUG
 #define JOB_SCRAPER_TRACE(...)    jobscraper::log::Log::GetLogger()->log(spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, spdlog::level::trace, __VA_ARGS__)
 #define JOB_SCRAPER_DEBUG(...)    jobscraper::log::Log::GetLogger()->log(spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, spdlog::level::debug, __VA_ARGS__)
+#else
+#define JOB_SCRAPER_TRACE(...)    (void)0
+#define JOB_SCRAPER_DEBUG(...)    (void)0
+#endif
 #define JOB_SCRAPER_INFO(...)     jobscraper::log::Log::GetLogger()->log(spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, spdlog::level::info, __VA_ARGS__)
 #define JOB_SCRAPER_WARN(...)     jobscraper::log::Log::GetLogger()->log(spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, spdlog::level::warn, __VA_ARGS__)
 #define JOB_SCRAPER_ERROR(...)    jobscraper::log::Log::GetLogger()->log(spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, spdlog::level::err, __VA_ARGS__)
