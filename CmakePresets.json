@@ -1,0 +1,47 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 28,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "Config-Base",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/build/${presetName}"
+        },
+        {
+            "name": "Config-Debug",
+            "hidden": true,
+            "inherits": "Config-Base",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/Debug",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "RUN_DIR": "${sourceDir}/Run/Debug"
+            }
+        },
+        {
+            "name": "Config-Release",
+            "hidden": true,
+            "inherits": "Config-Base",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/Release",
+                "CMAKE_BUILD_TYPE": "Release",
+                "RUN_DIR": "${sourceDir}/Run/Release"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "Build-Debug",
+            "hidden": true,
+            "configurePreset": "Config-Debug"
+        },
+        {
+            "name": "Build-Release",
+            "hidden": true,
+            "configurePreset": "Config-Release"
+        }
+    ]
+}

@@ -1,0 +1,4 @@
+.vscode/
+CmakeUserPresets.json
+build/
+run/
