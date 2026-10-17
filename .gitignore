@@ -1,4 +1,8 @@
-.vscode/
-CmakeUserPresets.json
+# User related
+**/.vscode
+**/CMakeUserPresets.json
+**/.secrets
+
+# Project related
 build/
 run/

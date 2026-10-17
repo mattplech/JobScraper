@@ -1,8 +1,7 @@
 # Declaration of JobScraper library
-file(GLOB_RECURSE JOBSCRAPER_SRC_FILES "src/*.cpp" "include/*.hpp")
+file(GLOB_RECURSE JOBSCRAPER_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp")
 
-add_executable(JobScraper ${JOBSCRAPER_SRC_FILES}
-    src/JobScraper.cpp)
+add_executable(JobScraper ${JOBSCRAPER_SRC_FILES})
 
 # Compile definitions for JobScraper
 target_compile_definitions(JobScraper
@@ -14,6 +13,7 @@ target_compile_definitions(JobScraper
 	$<$<PLATFORM_ID:Windows>:-DWIN32_LEAN_AND_MEAN -DNOMINMAX>
 )
 
+# Include JobScraper header files
 target_include_directories(JobScraper
 	PUBLIC
 
@@ -21,6 +21,7 @@ target_include_directories(JobScraper
 	$<INSTALL_INTERFACE:include>
 )
 
+# Link libraries for JobScraper
 find_package(spdlog CONFIG REQUIRED)
 
 target_link_libraries(JobScraper

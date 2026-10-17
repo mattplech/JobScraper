@@ -1,0 +1,21 @@
+# git related
+**/.git
+**/.gitignore
+
+# Docker related
+**/Dockerfile*
+**/.dockerignore
+**/compose*
+**/docker-compose*
+
+# User related
+**/.vscode
+**/CMakeUserPresets.json
+**/.secrets
+**/.devcontainer
+
+# Project related
+build/
+run/
+LICENSE
+README.md

@@ -9,6 +9,6 @@ namespace jobscraper
     {
         log::Log::Init();
 
-        JOB_SCRAPER_DEBUG("JobScraper initialized.");
+        JOB_SCRAPER_INFO("JobScraper initialized.");
     }
 } // namespace jobscraper

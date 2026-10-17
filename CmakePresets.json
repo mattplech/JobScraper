@@ -9,16 +9,17 @@
         {
             "name": "Config-Base",
             "hidden": true,
-            "binaryDir": "${sourceDir}/build/${presetName}"
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/${presetName}"
+            }
         },
         {
             "name": "Config-Debug",
             "hidden": true,
             "inherits": "Config-Base",
             "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/Debug",
-                "CMAKE_BUILD_TYPE": "Debug",
-                "RUN_DIR": "${sourceDir}/Run/Debug"
+                "CMAKE_BUILD_TYPE": "Debug"
             }
         },
         {
@@ -26,9 +27,7 @@
             "hidden": true,
             "inherits": "Config-Base",
             "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/Release",
-                "CMAKE_BUILD_TYPE": "Release",
-                "RUN_DIR": "${sourceDir}/Run/Release"
+                "CMAKE_BUILD_TYPE": "Release"
             }
         }
     ],
