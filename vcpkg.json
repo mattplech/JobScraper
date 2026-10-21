@@ -1,11 +1,15 @@
 {
-  "name": "elysium-engine",
-  "version": "0.1.0",
   "dependencies": [
     {
-        "name": "spdlog",
-        "version>=": "1.17.0",
-        "features": ["fmt"]
+      "name": "spdlog",
+      "features": [
+        "fmt"
+      ],
+      "version>=": "1.17.0"
+    },
+    {
+      "name": "libpqxx",
+      "version>=": "8.0.2"
     }
   ]
 }

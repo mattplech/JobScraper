@@ -12,6 +12,6 @@ fi
 # Generate a new random database password and store it in .secrets/db_password
 umask 077
 openssl rand -hex 32 > .secrets/db_password
-chmod 400 .secrets/db_password
+chmod 444 .secrets/db_password
 
 echo "Generated a new database password and stored it in .secrets/db_password"

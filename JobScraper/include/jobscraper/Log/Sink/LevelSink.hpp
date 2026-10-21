@@ -117,7 +117,7 @@ namespace jobscraper
         };
 
         using stdout_level_sink_mt = stdout_level_sink<spdlog::details::console_mutex>;
-        using stdout_level_sink_st = stdout_level_sink<spdlog::details::null_mutex>;
+        using stdout_level_sink_st = stdout_level_sink<spdlog::details::console_nullmutex>;
 
         // --- Stderr Level Sink --- //
 
@@ -135,6 +135,6 @@ namespace jobscraper
         };
 
         using stderr_level_sink_mt = stderr_level_sink<spdlog::details::console_mutex>;
-        using stderr_level_sink_st = stderr_level_sink<spdlog::details::null_mutex>;
+        using stderr_level_sink_st = stderr_level_sink<spdlog::details::console_nullmutex>;
     } // namespace log
 } // namespace jobscraper

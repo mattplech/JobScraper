@@ -1,9 +1,12 @@
 services:
   cpp-devcontainer:
-    image: mcr.microsoft.com/devcontainers/cpp:3-debian13
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - devcontainer.env
     volumes:
       - ../..:/workspaces:cached
-    command: sleep infinity
     depends_on:
       postgres:
         condition: service_healthy

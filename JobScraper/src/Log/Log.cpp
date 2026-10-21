@@ -16,8 +16,8 @@ namespace jobscraper
         void Log::Init()
         {   
             std::vector<spdlog::sink_ptr> sinks;
-            sinks.push_back(std::make_shared<stdout_color_level_sink_mt>());
-            sinks.push_back(std::make_shared<stderr_color_level_sink_mt>());
+            sinks.push_back(std::make_shared<stdout_color_level_sink_st>());
+            sinks.push_back(std::make_shared<stderr_color_level_sink_st>());
             
             // Initialize core logger
             s_Logger_ = std::make_shared<spdlog::logger>("JOB_SCRAPER", begin(sinks), end(sinks));

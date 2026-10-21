@@ -31,21 +31,23 @@ namespace jobscraper
 
 //  log macros
 #ifdef DEBUG
-#define JOB_SCRAPER_TRACE(...)    jobscraper::log::Log::GetLogger()->log(spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, spdlog::level::trace, __VA_ARGS__)
-#define JOB_SCRAPER_DEBUG(...)    jobscraper::log::Log::GetLogger()->log(spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, spdlog::level::debug, __VA_ARGS__)
+#define JOBSCRAPER_TRACE(...)    jobscraper::log::Log::GetLogger()->log(spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, spdlog::level::trace, __VA_ARGS__)
+#define JOBSCRAPER_DEBUG(...)    jobscraper::log::Log::GetLogger()->log(spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, spdlog::level::debug, __VA_ARGS__)
 #else
-#define JOB_SCRAPER_TRACE(...)    (void)0
-#define JOB_SCRAPER_DEBUG(...)    (void)0
+#define JOBSCRAPER_TRACE(...)    (void)0
+#define JOBSCRAPER_DEBUG(...)    (void)0
 #endif
-#define JOB_SCRAPER_INFO(...)     jobscraper::log::Log::GetLogger()->log(spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, spdlog::level::info, __VA_ARGS__)
-#define JOB_SCRAPER_WARN(...)     jobscraper::log::Log::GetLogger()->log(spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, spdlog::level::warn, __VA_ARGS__)
-#define JOB_SCRAPER_ERROR(...)    jobscraper::log::Log::GetLogger()->log(spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, spdlog::level::err, __VA_ARGS__)
-#define JOB_SCRAPER_CRITICAL(...) jobscraper::log::Log::GetLogger()->log(spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, spdlog::level::critical, __VA_ARGS__)
+#define JOBSCRAPER_INFO(...)     jobscraper::log::Log::GetLogger()->log(spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, spdlog::level::info, __VA_ARGS__)
+#define JOBSCRAPER_WARN(...)     jobscraper::log::Log::GetLogger()->log(spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, spdlog::level::warn, __VA_ARGS__)
+#define JOBSCRAPER_ERROR(...)    jobscraper::log::Log::GetLogger()->log(spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, spdlog::level::err, __VA_ARGS__)
+#define JOBSCRAPER_CRITICAL(...) jobscraper::log::Log::GetLogger()->log(spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, spdlog::level::critical, __VA_ARGS__)
 
 
 // Format management macros
-#define JOB_SCRAPER_LOGGER_SET_PATTERN(pattern) jobscraper::log::Log::GetLogger()->set_pattern(pattern);
+#define JOBSCRAPER_LOGGER_SET_PATTERN(pattern) jobscraper::log::Log::GetLogger()->set_pattern(pattern);
 
 // Log level management macros
-#define JOB_SCRAPER_LOGGER_SET_LEVEL(level) jobscraper::log::Log::GetLogger()->set_level(level);
-#define JOB_SCRAPER_LOGGER_GET_LEVEL() jobscraper::log::Log::GetLogger()->level()
+#define JOBSCRAPER_LOGGER_SET_LEVEL(level) jobscraper::log::Log::GetLogger()->set_level(level);
+#define JOBSCRAPER_LOGGER_GET_LEVEL() jobscraper::log::Log::GetLogger()->level()
+
+#define JOBSCRAPER_LOGGER_INIT() jobscraper::log::Log::Init();

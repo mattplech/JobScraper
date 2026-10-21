@@ -9,8 +9,6 @@ target_compile_definitions(JobScraper
 
     # Debug macro
     $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:-DDEBUG -D_DEBUG>
-	# Windows
-	$<$<PLATFORM_ID:Windows>:-DWIN32_LEAN_AND_MEAN -DNOMINMAX>
 )
 
 # Include JobScraper header files
@@ -23,10 +21,12 @@ target_include_directories(JobScraper
 
 # Link libraries for JobScraper
 find_package(spdlog CONFIG REQUIRED)
+find_package(libpqxx CONFIG REQUIRED)
 
 target_link_libraries(JobScraper
 	PUBLIC
 	spdlog::spdlog
+	libpqxx::pqxx
 )
 
 # Install JobScraper

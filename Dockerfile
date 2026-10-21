@@ -3,21 +3,14 @@
 # --------------------------------------------------
 # Build stage
 # --------------------------------------------------
-FROM debian:trixie-slim AS build
+FROM mcr.microsoft.com/devcontainers/cpp:3-debian13 AS build
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    build-essential \
-    cmake \
-    ninja-build \
-    zip \
-    unzip \
-    tar \
-    curl \
-    pkg-config \
-    ca-certificates \
+    bison \
+    flex \
+    autoconf \
     # Remove apt cache to reduce image size
     && rm -rf /var/lib/apt/lists/*
 
@@ -48,6 +41,16 @@ RUN cmake -S . -B /build -G Ninja \
 RUN cmake --build /build --parallel \
     && cmake --install /build
 
+# Collect vcpkg shared libraries needed by the executable.
+RUN ldd /opt/jobscraper/bin/JobScraper \
+    | awk "/=> \// { print $3 }" \
+    | grep "^/opt/vcpkg-installed/x64-linux/" \
+    | sort -u > /tmp/vcpkg-runtime-libs.txt \
+    && mkdir -p /opt/vcpkg-runtime-libs \
+    && while IFS= read -r lib; do \
+        cp -L "$lib" /opt/vcpkg-runtime-libs/; \
+    done < /tmp/vcpkg-runtime-libs.txt
+
 # --------------------------------------------------
 # Runtime stage
 # --------------------------------------------------
@@ -58,8 +61,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Copy installed application files.
 COPY --from=build /opt/jobscraper/ /opt/jobscraper/
 
-COPY --from=build /opt/vcpkg-installed/x64-linux/lib/ \
-    /opt/vcpkg-libs/
+COPY --from=build /opt/vcpkg-runtime-libs/ /opt/vcpkg-libs/
 
 ENV LD_LIBRARY_PATH="/opt/vcpkg-libs"
 

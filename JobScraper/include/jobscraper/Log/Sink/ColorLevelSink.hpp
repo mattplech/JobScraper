@@ -25,22 +25,22 @@ namespace jobscraper
                 {
                     set_color_mode(mode);
 
-                    colors_.at(spdlog::level::trace) = to_string_(intensive_cyan);
-                    colors_.at(spdlog::level::debug) = to_string_(cyan);
-                    colors_.at(spdlog::level::info) = to_string_(green);
-                    colors_.at(spdlog::level::warn) = to_string_(yellow_bold);
-                    colors_.at(spdlog::level::err) = to_string_(red_bold);
-                    colors_.at(spdlog::level::critical) = to_string_(bold_on_red);
-                    colors_.at(spdlog::level::off) = to_string_(reset);
+                    colors_.at(spdlog::level::trace) = intensive_cyan;
+                    colors_.at(spdlog::level::debug) = cyan;
+                    colors_.at(spdlog::level::info) = green;
+                    colors_.at(spdlog::level::warn) = yellow_bold;
+                    colors_.at(spdlog::level::err) = red_bold;
+                    colors_.at(spdlog::level::critical) = bold_on_red;
+                    colors_.at(spdlog::level::off) = reset;
                 }
 
                 ~color_level_sink() override = default;
 
-                void set_color(spdlog::level::level_enum color_level, spdlog::string_view_t color)
+                void set_color(spdlog::level::level_enum color_level, std::string color)
                 {
                     std::lock_guard<mutex_t> lock(mutex_);
 
-                    colors_.at(static_cast<size_t>(color_level)) = to_string_(color);
+                    colors_.at(static_cast<size_t>(color_level)) = color;
                 }
 
                 void set_color_mode(spdlog::color_mode mode)
@@ -145,7 +145,7 @@ namespace jobscraper
                 static constexpr std::string_view intensive_cyan = "\033[96m";
                 static constexpr std::string_view intensive_white = "\033[97m";
 
-                /// Background colors
+                // Background colors
                 static constexpr std::string_view on_black = "\033[40m";
                 static constexpr std::string_view on_red = "\033[41m";
                 static constexpr std::string_view on_green = "\033[42m";
@@ -155,7 +155,7 @@ namespace jobscraper
                 static constexpr std::string_view on_cyan = "\033[46m";
                 static constexpr std::string_view on_white = "\033[47m";
 
-                /// Bold colors
+                // Bold colors
                 static constexpr std::string_view yellow_bold = "\033[33m\033[1m";
                 static constexpr std::string_view red_bold = "\033[31m\033[1m";
                 static constexpr std::string_view bold_on_red = "\033[1m\033[41m";
@@ -167,7 +167,12 @@ namespace jobscraper
                 std::unique_ptr<spdlog::formatter> formatter_;
                 std::array<std::string, spdlog::level::n_levels> colors_;
 
-                void print_ccode_(const spdlog::string_view_t &color_code)
+                void print_ccode_(const std::string &color_code)
+                {
+                    spdlog::details::os::fwrite_bytes(color_code.data(), color_code.size(), target_file_);
+                }
+
+                void print_ccode_(const std::string_view color_code)
                 {
                     spdlog::details::os::fwrite_bytes(color_code.data(), color_code.size(), target_file_);
                 }
@@ -175,11 +180,6 @@ namespace jobscraper
                 void print_range_(const spdlog::memory_buf_t &formatted, size_t start, size_t end)
                 {
                     spdlog::details::os::fwrite_bytes(formatted.data() + start, end - start, target_file_);
-                }
-
-                static std::string to_string_(const spdlog::string_view_t &sv)
-                {
-                    return std::string(sv.data(), sv.size());
                 }
             };
 
@@ -197,7 +197,7 @@ namespace jobscraper
             };
 
             using stdout_color_level_sink_mt = stdout_color_level_sink<spdlog::details::console_mutex>;
-            using stdout_color_level_sink_st = stdout_color_level_sink<spdlog::details::null_mutex>;
+            using stdout_color_level_sink_st = stdout_color_level_sink<spdlog::details::console_nullmutex>;
 
             // --- Stderr Color Level Sink --- //
 
@@ -215,6 +215,6 @@ namespace jobscraper
             };
 
             using stderr_color_level_sink_mt = stderr_color_level_sink<spdlog::details::console_mutex>;
-            using stderr_color_level_sink_st = stderr_color_level_sink<spdlog::details::null_mutex>;
+            using stderr_color_level_sink_st = stderr_color_level_sink<spdlog::details::console_nullmutex>;
         } // namespace log
 } // namespace jobscraper

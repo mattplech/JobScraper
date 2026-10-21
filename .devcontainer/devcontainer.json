@@ -22,8 +22,12 @@
       "settings": {
         "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
         "cmake.configureOnOpen": true,
-        "telemetry.enableTelemetry": false
+        "telemetry.enableTelemetry": false,
+        "cmake.modifyLists.addNewSourceFiles": "no"
       }
     }
+  },
+  "containerEnv": {
+    "HOST_WORKSPACE": "${localWorkspaceFolder}"
   }
 }
