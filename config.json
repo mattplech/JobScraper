@@ -1,0 +1,15 @@
+{
+  "sites": [
+    {
+      "name": "jobs.cz",
+      "enabled": true,
+      "filters": {
+        "keywords": [],
+        "location_ids": [],
+        "work_location_type": "",
+        "max_pages": 5,
+        "max_age_days": 30
+      }
+    }
+  ]
+}

@@ -2,9 +2,12 @@
 
 // std
 #include <cstdlib>
+#include <unordered_map>
 
 // Job Scraper
 #include "jobscraper/Log/Log.hpp"
+#include "jobscraper/Config.hpp"
+#include "jobscraper/Adapters/JobsAdapter.hpp"
 
 namespace jobscraper
 {
@@ -38,6 +41,33 @@ namespace jobscraper
 
     void JobScraper::Run()
     {
-        // TODO: Create adapters
+        const char *config_path = std::getenv("JOBSCRAPER_CONFIG");
+        const JobscraperConfig config = JobscraperConfig::Load(config_path ? config_path : "config.json");
+
+        std::unordered_map<std::string, std::unique_ptr<Adapter>> adapters;
+        adapters.emplace("jobs.cz", std::make_unique<JobsAdapter>());
+
+        for (const SiteConfig &site : config.sites)
+        {
+            if (!site.enabled)
+                continue;
+
+            const auto adapter = adapters.find(site.name);
+            if (adapter == adapters.end())
+            {
+                JOBSCRAPER_WARN("No adapter registered for site '{}'.", site.name);
+
+                continue;
+            }
+
+            try
+            {
+                adapter->second->Run(database_.get(), site.filters);
+            }
+            catch (const std::exception &error)
+            {
+                JOBSCRAPER_ERROR("Scraping \"{}\" failed: {}", site.name, error.what());
+            }
+        }
     }
 } // namespace jobscraper

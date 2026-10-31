@@ -28,7 +28,6 @@ namespace jobscraper
             {"sslmode", config.ssl_mode}
         };
 
-        // Handle password or password file
         if (!config.password.empty())
         {
             options.emplace("password", config.password);
@@ -41,7 +40,6 @@ namespace jobscraper
             if (!password_file.is_open())
                 throw std::invalid_argument("Failed to open PostgreSQL password file: " + config.password_file);
 
-            // Read the password from the file
             std::string password;
             std::getline(password_file, password);
 
@@ -72,54 +70,103 @@ namespace jobscraper
     int Database::StoreOffer(const JobOffer &jobOffer)
     {
         if (!IsConnected())
-        {
             throw std::runtime_error("Database is not connected");
-        }
 
         pqxx::work txn(*connection_);
 
-        const pqxx::result result = txn.exec(R"(
-            INSERT INTO job_offers (
-                name,
-                job_description,
-                company_name,
-                company_address,
+        const pqxx::result result;
+        try
+        {
+            const pqxx::result result = txn.exec(R"(
+                INSERT INTO job_offers (
+                    name,
+                    job_description,
+                    company_name,
+                    company_address,
 
-                job_url,
+                    job_url,
 
-                salary,
+                    salary,
 
-                notes,
+                    created_at
+                )
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+                RETURNING id
+            )", pqxx::params{
+                    jobOffer.title,
+                    jobOffer.job_description,
+                    jobOffer.company_name,
+                    jobOffer.company_address,
+                    jobOffer.job_url,
+                    jobOffer.salary,
+                    jobOffer.created_at
+                }
+            );
 
-                created_at
-            )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-            RETURNING id
-        )", pqxx::params{
-                jobOffer.name,
-                jobOffer.job_description,
-                jobOffer.company_name,
-                jobOffer.company_address,
-                jobOffer.job_url,
-                jobOffer.salary,
-                jobOffer.notes,
-                jobOffer.created_at
+            txn.commit();
+
+            return result[0]["id"].as<int>();
+        }
+        catch(const std::exception& e)
+        {
+            JOBSCRAPER_ERROR(e.what());
+        }
+
+        return -1;
+    }
+
+    void Database::StoreOffers(const std::vector<JobOffer> &jobOffers)
+    {
+        if (!IsConnected())
+            throw std::runtime_error("Database is not connected");
+
+        pqxx::work txn(*connection_);
+
+        for (const auto &job_offer : jobOffers)
+        {
+            try
+            {
+                const pqxx::result result = txn.exec(R"(
+                    INSERT INTO job_offers (
+                        name,
+                        job_description,
+                        company_name,
+                        company_address,
+
+                        job_url,
+
+                        salary,
+
+                        created_at
+                    )
+                    VALUES ($1, $2, $3, $4, $5, $6, $7)
+                    RETURNING id
+                )", pqxx::params{
+                        job_offer.title,
+                        job_offer.job_description,
+                        job_offer.company_name,
+                        job_offer.company_address,
+                        job_offer.job_url,
+                        job_offer.salary,
+                        job_offer.created_at
+                    }
+                );
             }
-        );
+            catch(const std::exception& e)
+            {
+                JOBSCRAPER_ERROR(e.what());
+            }
+        }
 
         txn.commit();
-
-        return result[0]["id"].as<int>();
-    }
+    }   
 
     std::optional<StoredJobOffer> Database::GetOffer(const int id) const
     {
         if (!IsConnected())
-        {
             throw std::runtime_error("Database is not connected");
-        }
 
-        pqxx::work txn(*connection_);
+        pqxx::read_transaction txn(*connection_);
 
         const pqxx::result result = txn.exec(R"(
             SELECT 
@@ -152,9 +199,13 @@ namespace jobscraper
         stored_offer.id = id;
         stored_offer.registered_at = row["registered_at"].as<std::string>();
 
+        if (!row["notes"].is_null()) {
+            stored_offer.notes = row["notes"].as<std::string>();
+        }
+
         // Populate the JobOffer fields
         JobOffer &job_offer = stored_offer.job_offer;
-        job_offer.name = row["name"].as<std::string>();
+        job_offer.title = row["name"].as<std::string>();
         job_offer.job_description = row["job_description"].as<std::string>();
         job_offer.company_name = row["company_name"].as<std::string>();
 
@@ -165,11 +216,7 @@ namespace jobscraper
         job_offer.job_url = row["job_url"].as<std::string>();
 
         if (!row["salary"].is_null()) {
-            job_offer.salary = row["salary"].as<int>();
-        }
-
-        if (!row["notes"].is_null()) {
-            job_offer.notes = row["notes"].as<std::string>();
+            job_offer.salary = row["salary"].as<std::string>();
         }
 
         if (!row["created_at"].is_null()) {
@@ -182,11 +229,9 @@ namespace jobscraper
     std::vector<StoredJobOffer> Database::GetOffers() const
     {
         if (!IsConnected())
-        {
             throw std::runtime_error("Database is not connected");
-        }
 
-        pqxx::work txn(*connection_);
+        pqxx::read_transaction txn(*connection_);
 
         const pqxx::result result = txn.exec(R"(
             SELECT 
@@ -219,9 +264,13 @@ namespace jobscraper
             stored_offer.id = row["id"].as<int>();
             stored_offer.registered_at = row["registered_at"].as<std::string>();
 
+            if (!row["notes"].is_null()) {
+                stored_offer.notes = row["notes"].as<std::string>();
+            }
+
             // Populate the JobOffer fields
             JobOffer &job_offer = stored_offer.job_offer;
-            job_offer.name = row["name"].as<std::string>();
+            job_offer.title = row["name"].as<std::string>();
             job_offer.job_description = row["job_description"].as<std::string>();
             job_offer.company_name = row["company_name"].as<std::string>();
 
@@ -232,11 +281,7 @@ namespace jobscraper
             job_offer.job_url = row["job_url"].as<std::string>();
 
             if (!row["salary"].is_null()) {
-                job_offer.salary = row["salary"].as<int>();
-            }
-
-            if (!row["notes"].is_null()) {
-                job_offer.notes = row["notes"].as<std::string>();
+                job_offer.salary = row["salary"].as<std::string>();
             }
 
             if (!row["created_at"].is_null()) {
@@ -252,9 +297,7 @@ namespace jobscraper
     bool Database::DeleteOffer(const int id)
     {
         if (!IsConnected())
-        {
             throw std::runtime_error("Database is not connected");
-        }
 
         pqxx::work txn(*connection_);
 
@@ -271,17 +314,32 @@ namespace jobscraper
     bool Database::HasOffer(const int id) const
     {
         if (!IsConnected())
-        {
             throw std::runtime_error("Database is not connected");
-        }
 
-        pqxx::work txn(*connection_);
+        pqxx::read_transaction txn(*connection_);
 
         const pqxx::result result = txn.exec(R"(
             SELECT 1
             FROM job_offers
             WHERE id = $1
         )", pqxx::params{id});
+
+        return !result.empty();
+    }
+
+    bool Database::HasOffer(const std::string &jobUrl) const
+    {
+        if (!IsConnected())
+            throw std::runtime_error("Database is not connected");
+
+        pqxx::read_transaction txn(*connection_);
+
+        const pqxx::result result = txn.exec(R"(
+            SELECT 1
+            FROM job_offers
+            WHERE job_url = $1
+            LIMIT 1
+        )", pqxx::params{jobUrl});
 
         return !result.empty();
     }
@@ -307,7 +365,7 @@ namespace jobscraper
 
                 job_url TEXT NOT NULL,
 
-                salary INT,
+                salary TEXT,
 
                 notes TEXT,
 
@@ -321,6 +379,12 @@ namespace jobscraper
             CREATE INDEX IF NOT EXISTS
             idx_job_offers_registered_at
             ON job_offers (registered_at DESC)
+        )");
+
+        txn.exec(R"(
+            CREATE INDEX IF NOT EXISTS
+            idx_job_offers_job_url
+            ON job_offers (job_url)
         )");
 
         txn.commit();

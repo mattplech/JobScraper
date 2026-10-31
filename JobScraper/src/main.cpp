@@ -9,9 +9,9 @@ int main(int argc, char** argv)
 {
     try
     {
-        std::unique_ptr<jobscraper::JobScraper> jobScraper = std::make_unique<jobscraper::JobScraper>();
+        std::unique_ptr<jobscraper::JobScraper> job_scraper = std::make_unique<jobscraper::JobScraper>();
 
-        jobScraper->Run();
+        job_scraper->Run();
     } catch (std::exception const &e)
     {
         JOBSCRAPER_CRITICAL(e.what());

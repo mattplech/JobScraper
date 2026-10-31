@@ -26,18 +26,23 @@ namespace jobscraper
 
     struct JobOffer
     {
-        std::string name;
+        std::string title;
         std::string job_description;
         std::string company_name;
         std::optional<std::string> company_address;
 
         std::string job_url;
 
-        std::optional<int> salary;
-
-        std::optional<std::string> notes; // Personal notes on the job offer
+        std::optional<std::string> salary;
 
         std::optional<std::string> created_at; // When the job offer was created
+
+        bool IsFilled()
+        {
+            return !title.empty() && !job_description.empty() &&
+                !company_name.empty() && company_address.has_value() && 
+                !job_url.empty() && salary.has_value() && created_at.has_value();
+        }
     };
 
     struct StoredJobOffer
@@ -45,6 +50,8 @@ namespace jobscraper
         int id = 0;
 
         JobOffer job_offer;
+
+        std::optional<std::string> notes; // Personal notes on the job offer
 
         std::string registered_at; // When the job offer was stored in database
     };
@@ -61,6 +68,7 @@ namespace jobscraper
         Database& operator=(const Database &&) noexcept = delete;
 
         int StoreOffer(const JobOffer &jobOffer);
+        void StoreOffers(const std::vector<JobOffer> &jobOffers);
 
         std::optional<StoredJobOffer> GetOffer(const int id) const;
         std::vector<StoredJobOffer> GetOffers() const;
@@ -68,6 +76,7 @@ namespace jobscraper
         bool DeleteOffer(const int id);
 
         bool HasOffer(const int id) const;
+        bool HasOffer(const std::string &jobUrl) const;
 
         bool IsConnected() const noexcept;
 

@@ -22,11 +22,17 @@ target_include_directories(JobScraper
 # Link libraries for JobScraper
 find_package(spdlog CONFIG REQUIRED)
 find_package(libpqxx CONFIG REQUIRED)
+find_package(cpr CONFIG REQUIRED)
+find_package(LibXml2 CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 target_link_libraries(JobScraper
 	PUBLIC
 	spdlog::spdlog
 	libpqxx::pqxx
+	cpr::cpr
+	LibXml2::LibXml2
+	nlohmann_json::nlohmann_json
 )
 
 # Install JobScraper
@@ -38,3 +44,5 @@ install(TARGETS JobScraper
 	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 	INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
+
+install(FILES "${PROJECT_SOURCE_DIR}/config.json" DESTINATION .)
