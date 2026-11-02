@@ -9,19 +9,15 @@
 
 namespace jobscraper
 {
-    class JobScraper;
-
     namespace log
     {
         class Log
         {
-            friend class jobscraper::JobScraper;
         public:
             inline static spdlog::logger* GetLogger() { return s_Logger_.get(); }
-
-        private:
             static void Init();
 
+        private:
             inline static std::unique_ptr<spdlog::pattern_formatter> GetFormatter();
 
             static std::shared_ptr<spdlog::logger> s_Logger_;

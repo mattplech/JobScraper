@@ -20,6 +20,7 @@ namespace jobscraper
         std::string user = "jobscraper";
         std::string password;
         std::string password_file;
+        std::optional<std::string> schema;
 
         std::string ssl_mode = "prefer";
     };

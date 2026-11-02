@@ -675,6 +675,9 @@ namespace jobscraper
         for (int page = 1; page <= filters.max_pages; ++page)
         {
             const std::string page_url = CreateSearchUrl(filters, page);
+
+            JOBSCRAPER_INFO("Reading {} search page {}: {}", Name(), page, page_url);
+
             std::vector<JobOffer> listings;
             try
             {
@@ -690,11 +693,12 @@ namespace jobscraper
                 break;
             }
 
-            int added = 0;
+            JOBSCRAPER_INFO("Found {} offers on {} search page {}.", listings.size(), Name(), page);
+
+            int added = 0;;
 
             for (JobOffer &listing : listings)
             {
-                
                 const std::string url = listing.job_url;
                 listing.job_url = BuildCanonicalUrl(url);
 
@@ -702,6 +706,7 @@ namespace jobscraper
                 if (!seen.insert(listing.job_url).second)
                     continue;
 
+                JOBSCRAPER_INFO("Scraping offer page '{}': {}", listing.title, url);
                 try
                 {
                     offers.push_back(ParseOffer(listing, FetchPage(url)));
@@ -713,9 +718,15 @@ namespace jobscraper
                 }
             }
 
+            JOBSCRAPER_INFO("Scraped {} offers from {} search page {}.", added, Name(), page);
+
             // Stop scraping if no new listings were added, which may indicate the last page.
             if (added == 0)
+            {
+                JOBSCRAPER_INFO("No new offers found on {} search page {}; stopping.", Name(), page);
+                
                 break;
+            }
         }
     }
 } // namespace jobscraper

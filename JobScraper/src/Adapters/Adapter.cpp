@@ -62,6 +62,8 @@ namespace jobscraper
         {
             if (!IsOfferWithinMaxAge(*offer_it, filters))
             {
+                JOBSCRAPER_INFO("Offer '{}' is older than {} days, skipping.", offer_it->job_url, filters.max_age_days);
+
                 offers.erase(offer_it);
 
                 continue;
@@ -70,6 +72,8 @@ namespace jobscraper
             if (database->HasOffer(offer_it->job_url))
             {
                 offers.erase(offer_it);
+
+                JOBSCRAPER_INFO("Offer '{}' already exists in the database, skipping.", offer_it->job_url);
 
                 continue;
             }

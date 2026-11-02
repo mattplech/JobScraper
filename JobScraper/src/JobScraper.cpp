@@ -23,7 +23,7 @@ namespace jobscraper
         {
             config.port = getenv("DB_PORT") ? std::stoi(std::getenv("DB_PORT")) : config.port;
         }
-        catch(const std::exception& e)
+        catch(const std::exception &e)
         {
             JOBSCRAPER_ERROR("Error occurred while parsing DB_PORT: {}", e.what());
             JOBSCRAPER_WARN("Using default DB_PORT: {}", config.port);

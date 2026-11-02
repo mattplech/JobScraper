@@ -1,10 +1,11 @@
 # Declaration of JobScraper library
 file(GLOB_RECURSE JOBSCRAPER_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp")
+list(FILTER JOBSCRAPER_SRC_FILES EXCLUDE REGEX "/main\\.cpp$")
 
-add_executable(JobScraper ${JOBSCRAPER_SRC_FILES})
+add_library(JobScraperCore STATIC ${JOBSCRAPER_SRC_FILES})
 
 # Compile definitions for JobScraper
-target_compile_definitions(JobScraper
+target_compile_definitions(JobScraperCore
     PRIVATE
 
     # Debug macro
@@ -12,7 +13,7 @@ target_compile_definitions(JobScraper
 )
 
 # Include JobScraper header files
-target_include_directories(JobScraper
+target_include_directories(JobScraperCore
 	PUBLIC
 
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -26,7 +27,7 @@ find_package(cpr CONFIG REQUIRED)
 find_package(LibXml2 CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 
-target_link_libraries(JobScraper
+target_link_libraries(JobScraperCore
 	PUBLIC
 	spdlog::spdlog
 	libpqxx::pqxx
@@ -37,6 +38,13 @@ target_link_libraries(JobScraper
 
 # Install JobScraper
 include(GNUInstallDirs)
+
+add_executable(JobScraper src/main.cpp)
+target_link_libraries(JobScraper PRIVATE JobScraperCore)
+
+if(BUILD_TESTING)
+	add_subdirectory(tests)
+endif()
 
 install(TARGETS JobScraper
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

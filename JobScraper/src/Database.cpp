@@ -14,9 +14,10 @@ namespace jobscraper
     Database::Database(const DatabaseConfig &config)
     {
         if (config.port < 1 || config.port > 65535)
-        {
-            throw std::invalid_argument("Invalid PostgreSQL port");
-        }
+            throw std::invalid_argument("Invalid DB_PORT");
+
+        if (config.schema.has_value() && config.schema->empty())
+            throw std::invalid_argument("DB_SCHEMA must not be empty");
 
         JOBSCRAPER_INFO("Connecting to database...");
 
@@ -34,17 +35,18 @@ namespace jobscraper
         } else if (!config.password_file.empty())
         {
             if (!std::filesystem::exists(config.password_file))
-                throw std::invalid_argument("PostgreSQL password file does not exist: " + config.password_file);
+                throw std::runtime_error("DB_PASSWORD_FILE does not exist: " + config.password_file);
 
             std::ifstream password_file(config.password_file);
             if (!password_file.is_open())
-                throw std::invalid_argument("Failed to open PostgreSQL password file: " + config.password_file);
+                throw std::runtime_error("Failed to open DB_PASSWORD_FILE: " + config.password_file);
 
             std::string password;
-            std::getline(password_file, password);
+            if (!std::getline(password_file, password))
+                throw std::runtime_error("Failed to read DB_PASSWORD_FILE: " + config.password_file);
 
             if (password.empty())
-                throw std::invalid_argument("PostgreSQL password file is empty: " + config.password_file);
+                throw std::runtime_error("DB_PASSWORD_FILE is empty: " + config.password_file);
 
             options.emplace("password", password);
         } else
@@ -54,6 +56,13 @@ namespace jobscraper
 
         // Create the connection
         connection_ = std::make_unique<pqxx::connection>(options);
+
+        if (config.schema.has_value())
+        {
+            pqxx::work schema_txn(*connection_);
+            schema_txn.exec("SET search_path TO " + schema_txn.quote_name(config.schema.value()));
+            schema_txn.commit();
+        }
 
         JOBSCRAPER_INFO("Database connected.");
 
