@@ -9,13 +9,15 @@
 **/docker-compose*
 
 # User related
+**/.devcontainer
+**/.secrets
 **/.vscode
 **/CMakeUserPresets.json
-**/.secrets
-**/.devcontainer
 
 # Project related
 build/
 run/
+scripts/
+**/tests/
 LICENSE
 README.md
