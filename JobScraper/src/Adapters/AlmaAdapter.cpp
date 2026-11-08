@@ -1,4 +1,4 @@
-#include "jobscraper/Adapters/JobsAdapter.hpp"
+#include "jobscraper/Adapters/AlmaAdapter.hpp"
 
 // std
 #include <array>
@@ -13,9 +13,6 @@
 #include <stdexcept>
 #include <sstream>
 #include <string_view>
-
-// CPR
-#include <cpr/cpr.h>
 
 // LibXml2
 #include <libxml/HTMLparser.h>
@@ -83,59 +80,6 @@ namespace jobscraper
                 HTML_PARSE_NOWARNING | HTML_PARSE_NONET);
 
             return Document(document, xmlFreeDoc);
-        }
-
-        std::string EncodeQueryValue(const std::string &value)
-        {
-            static constexpr char hex[] = "0123456789ABCDEF";
-            std::string encoded;
-            for (const unsigned char character : value)
-            {
-                // Keep URI-safe bytes and percent-encode everything else.
-                if (std::isalnum(character) || character == '-' || character == '_' || character == '.' || character == '~')
-                {
-                    encoded.push_back(static_cast<char>(character));
-                }
-                else
-                {
-                    encoded.push_back('%');
-                    encoded.push_back(hex[character >> 4]);
-                    encoded.push_back(hex[character & 0x0F]);
-                }
-            }
-
-            return encoded;
-        }
-
-        std::string CreateSearchUrl(const SearchFilters &filters, int page)
-        {
-            std::string url = "https://beta.jobs.cz/prace/?";
-
-            for (const std::string &keyword : filters.keywords)
-                url += "keywords%5B%5D=" + EncodeQueryValue(keyword) + "&";
-
-            for (const std::string &location_id : filters.location_ids)
-                url += "workLocationIds%5B%5D=" + EncodeQueryValue(location_id) + "&";
-
-            if (filters.work_location_type == "ON_SITE" || 
-                filters.work_location_type == "PARTIALLY_REMOTE" || 
-                filters.work_location_type == "FULL_REMOTE")
-            {
-                url += "workLocationTypes%5B%5D=" + EncodeQueryValue(filters.work_location_type) + "&";
-            }
-
-            if (page > 1)
-                url += "page=" + std::to_string(page);
-
-            if (url.back() == '?')
-            {
-                url.pop_back();
-            } else if (url.back() == '&')
-            {
-                url.pop_back();
-            }
-
-            return url;
         }
 
         std::string BuildAbsoluteUrl(const std::string &base, const std::string &reference)
@@ -587,20 +531,6 @@ namespace jobscraper
                 offer.created_at = RelativePostedDate(NodeContent(root));
         }
 
-        std::string FetchPage(const std::string &url)
-        {
-            // Follow redirects because /pd/ links often lead to a site's final detail-page URL.
-            const cpr::Response response = cpr::Get(cpr::Url{url},
-                cpr::Header{{"User-Agent", "JobScraper/1.0 (+https://jobs.cz/)"}},
-                cpr::Timeout{12000}, cpr::Redirect{true});
-                
-            if (response.error || response.status_code < 200 || response.status_code >= 400)
-                throw std::runtime_error("HTTP request failed for " + url + ": " + 
-                    (response.error ? response.error.message : std::to_string(response.status_code)));
-
-            return response.text;
-        }
-
         JobOffer ParseOffer(JobOffer &offer, const std::string &detailHtml)
         {
             if (!detailHtml.empty())
@@ -662,26 +592,32 @@ namespace jobscraper
                 offers.push_back(std::move(offer));
             }
         }
-    }
+    } // namespace
 
-    std::string JobsAdapter::Name() const
+    AlmaAdapter::AlmaAdapter(FetchAdapter *fetcher)
+        : fetcher_(std::unique_ptr<FetchAdapter>(fetcher))
     {
-        return "jobs.cz";
+
     }
 
-    void JobsAdapter::Scrape(const SearchFilters &filters, std::vector<JobOffer> &offers)
+    std::string AlmaAdapter::Name() const
+    {
+        return fetcher_->Name();
+    }
+
+    void AlmaAdapter::Scrape(const SearchFilters &filters, std::vector<JobOffer> &offers)
     {
         std::set<std::string> seen;
         for (int page = 1; page <= filters.max_pages; ++page)
         {
-            const std::string page_url = CreateSearchUrl(filters, page);
+            const std::string page_url = fetcher_->BuildSearchUrl(filters, page);
 
             JOBSCRAPER_INFO("Reading {} search page {}: {}", Name(), page, page_url);
 
             std::vector<JobOffer> listings;
             try
             {
-                ReadListingPage(listings, FetchPage(page_url), page_url);
+                ReadListingPage(listings, fetcher_->Fetch(page_url), page_url);
             }
             catch (const std::exception &error)
             {
@@ -706,10 +642,10 @@ namespace jobscraper
                 if (!seen.insert(listing.job_url).second)
                     continue;
 
-                JOBSCRAPER_INFO("Scraping offer page '{}': {}", listing.title, url);
+                JOBSCRAPER_INFO("Scraping offer page \"{}\": {}", listing.title, url);
                 try
                 {
-                    offers.push_back(ParseOffer(listing, FetchPage(url)));
+                    offers.push_back(ParseOffer(listing, fetcher_->Fetch(url)));
                     added++;
                 }
                 catch (const std::exception &error)

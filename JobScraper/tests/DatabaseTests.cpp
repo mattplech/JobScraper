@@ -35,22 +35,22 @@ namespace
     DatabaseConfig LoadDatabaseConfig()
     {
         DatabaseConfig config;
-        config.host = EnvironmentValue("DB_HOST", config.host);
+        config.host = EnvironmentValue("JOBSCRAPER_HOST", config.host);
         try
         {
-            const std::string port = EnvironmentValue("DB_PORT", std::to_string(config.port));
+            const std::string port = EnvironmentValue("JOBSCRAPER_PORT", std::to_string(config.port));
             config.port = std::stoi(port);
         }
         catch (const std::exception &e)
         {
-            throw std::runtime_error("Error occurred while parsing DB_PORT for Database integration tests: " +
+            throw std::runtime_error("Error occurred while parsing JOBSCRAPER_PORT for Database integration tests: " +
                 std::string(e.what()));
         }
-        config.db_name = EnvironmentValue("DB_NAME", config.db_name);
-        config.user = EnvironmentValue("DB_USER", config.user);
-        config.password = EnvironmentValue("DB_PASSWORD", config.password);
-        config.password_file = EnvironmentValue("DB_PASSWORD_FILE", config.password_file);
-        config.ssl_mode = EnvironmentValue("DB_SSL_MODE", config.ssl_mode);
+        config.db_name = EnvironmentValue("JOBSCRAPER_NAME", config.db_name);
+        config.user = EnvironmentValue("JOBSCRAPER_USER", config.user);
+        config.password = EnvironmentValue("JOBSCRAPER_PASSWORD", config.password);
+        config.password_file = EnvironmentValue("JOBSCRAPER_PASSWORD_FILE", config.password_file);
+        config.ssl_mode = EnvironmentValue("JOBSCRAPER_SSL_MODE", config.ssl_mode);
 
         return config;
     }
@@ -72,25 +72,25 @@ namespace
         else if (!config.password_file.empty())
         {
             if (!std::filesystem::exists(config.password_file))
-                throw std::runtime_error("DB_PASSWORD_FILE does not exist: " + config.password_file);
+                throw std::runtime_error("JOBSCRAPER_PASSWORD_FILE does not exist: " + config.password_file);
 
             std::ifstream password_file(config.password_file);
             if (!password_file.is_open())
-                throw std::runtime_error("Failed to open DB_PASSWORD_FILE: " + config.password_file);
+                throw std::runtime_error("Failed to open JOBSCRAPER_PASSWORD_FILE: " + config.password_file);
 
             std::string password;
             if (!std::getline(password_file, password))
-                throw std::runtime_error("Failed to read DB_PASSWORD_FILE: " + config.password_file);
+                throw std::runtime_error("Failed to read JOBSCRAPER_PASSWORD_FILE: " + config.password_file);
 
             if (password.empty())
-                throw std::runtime_error("DB_PASSWORD_FILE is empty: " + config.password_file);
+                throw std::runtime_error("JOBSCRAPER_PASSWORD_FILE is empty: " + config.password_file);
 
             options.emplace("password", password);
         }
         else
         {
             throw std::runtime_error(
-                "Database integration tests require DB_PASSWORD or DB_PASSWORD_FILE");
+                "Database integration tests require JOBSCRAPER_PASSWORD or JOBSCRAPER_PASSWORD_FILE");
         }
 
         return options;

@@ -13,7 +13,7 @@ namespace jobscraper
     public:
         JobScraper();
 
-        JobScraper(const Database &) = delete;
+        JobScraper(const JobScraper &) = delete;
         JobScraper(const JobScraper &&) noexcept = delete;
         JobScraper& operator=(const JobScraper &) = delete;
         JobScraper& operator=(const JobScraper &&) noexcept = delete;
@@ -23,5 +23,4 @@ namespace jobscraper
     private:
         std::unique_ptr<Database> database_;
     };
-    
 } // namespace jobscraper

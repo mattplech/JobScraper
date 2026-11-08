@@ -7,32 +7,32 @@
 // Job Scraper
 #include "jobscraper/Log/Log.hpp"
 #include "jobscraper/Config.hpp"
-#include "jobscraper/Adapters/JobsAdapter.hpp"
+#include "jobscraper/Adapters/AlmaAdapter.hpp"
+#include "jobscraper/Adapters/JobsFetcher.hpp"
+#include "jobscraper/Adapters/PraceFetcher.hpp"
 
 namespace jobscraper
 {
     JobScraper::JobScraper()
     {
-        JOBSCRAPER_LOGGER_INIT();       
-        
         JOBSCRAPER_INFO("Initializing JobScraper...");
 
         DatabaseConfig config;
-        config.host = std::getenv("DB_HOST") ? std::getenv("DB_HOST") : config.host;
+        config.host = std::getenv("JOBSCRAPER_HOST") ? std::getenv("JOBSCRAPER_HOST") : config.host;
         try
         {
-            config.port = getenv("DB_PORT") ? std::stoi(std::getenv("DB_PORT")) : config.port;
+            config.port = getenv("JOBSCRAPER_PORT") ? std::stoi(std::getenv("JOBSCRAPER_PORT")) : config.port;
         }
         catch(const std::exception &e)
         {
-            JOBSCRAPER_ERROR("Error occurred while parsing DB_PORT: {}", e.what());
-            JOBSCRAPER_WARN("Using default DB_PORT: {}", config.port);
+            JOBSCRAPER_ERROR("Error occurred while parsing JOBSCRAPER_PORT: {}", e.what());
+            JOBSCRAPER_WARN("Using default JOBSCRAPER_PORT: {}", config.port);
         }
-        config.db_name = std::getenv("DB_NAME") ? std::getenv("DB_NAME") : config.db_name;
-        config.user = std::getenv("DB_USER") ? std::getenv("DB_USER") : config.user;
-        config.password = std::getenv("DB_PASSWORD") ? std::getenv("DB_PASSWORD") : config.password;
-        config.password_file = std::getenv("DB_PASSWORD_FILE") ? std::getenv("DB_PASSWORD_FILE") : config.password_file;
-        config.ssl_mode = std::getenv("DB_SSL_MODE") ? std::getenv("DB_SSL_MODE") : config.ssl_mode;
+        config.db_name = std::getenv("JOBSCRAPER_NAME") ? std::getenv("JOBSCRAPER_NAME") : config.db_name;
+        config.user = std::getenv("JOBSCRAPER_USER") ? std::getenv("JOBSCRAPER_USER") : config.user;
+        config.password = std::getenv("JOBSCRAPER_PASSWORD") ? std::getenv("JOBSCRAPER_PASSWORD") : config.password;
+        config.password_file = std::getenv("JOBSCRAPER_PASSWORD_FILE") ? std::getenv("JOBSCRAPER_PASSWORD_FILE") : config.password_file;
+        config.ssl_mode = std::getenv("JOBSCRAPER_SSL_MODE") ? std::getenv("JOBSCRAPER_SSL_MODE") : config.ssl_mode;
 
         database_ = std::make_unique<Database>(config);
 
@@ -45,7 +45,8 @@ namespace jobscraper
         const JobscraperConfig config = JobscraperConfig::Load(config_path ? config_path : "config.json");
 
         std::unordered_map<std::string, std::unique_ptr<Adapter>> adapters;
-        adapters.emplace("jobs.cz", std::make_unique<JobsAdapter>());
+        adapters.emplace("jobs.cz", std::make_unique<AlmaAdapter>(new JobsFetcher()));
+        adapters.emplace("prace.cz", std::make_unique<AlmaAdapter>(new PraceFetcher()));
 
         for (const SiteConfig &site : config.sites)
         {
@@ -55,7 +56,7 @@ namespace jobscraper
             const auto adapter = adapters.find(site.name);
             if (adapter == adapters.end())
             {
-                JOBSCRAPER_WARN("No adapter registered for site '{}'.", site.name);
+                JOBSCRAPER_WARN("No adapter registered for site \"{}\".", site.name);
 
                 continue;
             }

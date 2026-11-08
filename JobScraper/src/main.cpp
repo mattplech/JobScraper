@@ -7,6 +7,8 @@
 
 int main(int argc, char** argv)
 {
+    JOBSCRAPER_LOGGER_INIT();
+
     try
     {
         std::unique_ptr<jobscraper::JobScraper> job_scraper = std::make_unique<jobscraper::JobScraper>();

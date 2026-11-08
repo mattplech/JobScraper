@@ -1,7 +1,6 @@
 #pragma once
 
 // std
-#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -22,7 +21,13 @@ namespace jobscraper
     class Adapter
     {
     public:
+        Adapter() = default;
         virtual ~Adapter() = default;
+
+        Adapter(const Adapter &) = delete;
+        Adapter(const Adapter &&) noexcept = delete;
+        Adapter& operator=(const Adapter &) = delete;
+        Adapter& operator=(const Adapter &&) noexcept = delete;
 
         virtual std::string Name() const = 0;
         virtual void Scrape(const SearchFilters &filters, std::vector<JobOffer> &offers) = 0;
