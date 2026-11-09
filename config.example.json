@@ -4,7 +4,7 @@
       "name": "jobs.cz",
       "enabled": true,
       "filters": {
-        "keywords": ["IT"],
+        "keywords": ["IT", "programátor", "vývojář"],
         "location_ids": ["R200000;0"],
         "work_location_type": "",
         "max_pages": 5,
@@ -15,7 +15,7 @@
       "name": "prace.cz",
       "enabled": true,
       "filters": {
-        "keywords": ["IT"],
+        "keywords": ["IT", "programátor", "vývojář"],
         "location_ids": ["R200000;0"],
         "work_location_type": "",
         "max_pages": 5,

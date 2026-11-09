@@ -36,7 +36,8 @@ RUN cmake -S . -B /build -G Ninja \
     -DCMAKE_TOOLCHAIN_FILE=${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake \
     -DVCPKG_INSTALLED_DIR=/opt/vcpkg-installed \
     -DVCPKG_TARGET_TRIPLET=x64-linux \
-    -DCMAKE_INSTALL_PREFIX=/opt/jobscraper
+    -DCMAKE_INSTALL_PREFIX=/opt/jobscraper \
+    -DBUILD_TESTING=OFF
 
 RUN cmake --build /build --parallel \
     && cmake --install /build
@@ -58,12 +59,21 @@ FROM debian:trixie-slim AS runtime
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    # Remove apt cache to reduce image size
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy installed application files.
 COPY --from=build /opt/jobscraper/ /opt/jobscraper/
 
 COPY --from=build /opt/vcpkg-runtime-libs/ /opt/vcpkg-libs/
+COPY --from=build --chmod=755 /jobscraper/docker-entrypoint.sh /usr/local/bin/jobscraper-entrypoint
 
 ENV LD_LIBRARY_PATH="/opt/vcpkg-libs"
+
+# Run the scraper every 12 hours by default
+ENV JOBSCRAPER_INTERVAL_SECONDS=43200
 
 WORKDIR /opt/jobscraper
 
@@ -75,4 +85,4 @@ RUN useradd --system \
 
 USER jobscraper:jobscraper
 
-CMD ["/opt/jobscraper/bin/JobScraper"]
+ENTRYPOINT ["/usr/local/bin/jobscraper-entrypoint"]

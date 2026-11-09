@@ -1,17 +1,15 @@
 services:
   jobscraper:
-    image: jobscraper
-    build:
-      context: .
-      dockerfile: ./Dockerfile
+    image: jobscraper:latest
     environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: jobscraper
-      DB_USER: jobscraper
-      DB_PASSWORD_FILE: /run/secrets/db_password
-    secrets:
-        - db_password
+      JOBSCRAPER_HOST: postgres
+      JOBSCRAPER_PORT: 5432
+      JOBSCRAPER_NAME: jobscraper
+      JOBSCRAPER_USER: jobscraper
+      JOBSCRAPER_PASSWORD_FILE: /run/secrets/db_password
+      JOBSCRAPER_INTERVAL_SECONDS: 43200 # Run scraping every 12 hours
+    volumes:
+      - path/to/config.json:/opt/jobscraper/config.json:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -21,19 +19,17 @@ services:
         POSTGRES_DB: jobscraper
         POSTGRES_USER: jobscraper
         POSTGRES_PASSWORD_FILE: /run/secrets/db_password
-      secrets:
-        - db_password
       volumes:
         - postgres_data:/var/lib/postgresql/data
       healthcheck:
         test: ["CMD-SHELL", "pg_isready -U jobscraper -d jobscraper"]
         interval: 10s
         timeout: 3s
-        retries: 10
+        retries: 5
 
 volumes:
   postgres_data:
 
 secrets:
   db_password:
-    file: ${HOST_WORKSPACE}/.secrets/db_password
+    file: /path/to/password/file

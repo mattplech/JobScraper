@@ -19,5 +19,6 @@ build/
 run/
 scripts/
 **/tests/
+config.example.json
 LICENSE
 README.md

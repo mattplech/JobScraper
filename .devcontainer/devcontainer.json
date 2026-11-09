@@ -5,6 +5,7 @@
   ],
   "service": "cpp-devcontainer",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "postStartCommand": "bash scripts/setup_workspace.sh",
   "shutdownAction": "stopCompose",
   "features": {
 		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
