@@ -1,3 +1,5 @@
+<div align="center">
+
 [English](../README.md) · **čeština**
 
 # JobScraper
@@ -5,6 +7,8 @@
 ### Scrapujte pracovní nabídky z populárních českých kariérních portálů
 
 Projekt JobScraper jsem založil, abych sjednotil nabídky práce z různých webů na jednom místě a usnadnil si hledání pozice, která by mi vyhovovala. Zároveň slouží také jako portfoliový projekt, kde prezentuji své dovednosti v oblasti vývoje softwaru.
+
+</div>
 
 ## Podporované weby
 

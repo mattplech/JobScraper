@@ -1,3 +1,5 @@
+<div align="center">
+
 **English** · [čeština](docs/README.cs.md)
 
 # JobScraper
@@ -5,6 +7,8 @@
 ### Scrape job offers from popular Czech career portals
 
 I started JobScraper to bring job offers from multiple sites together in one place and make it easier for me to find a role that suits me. It also serves as a portfolio project showcasing my software development skills.
+
+</div>
 
 ## Supported Sites
 
