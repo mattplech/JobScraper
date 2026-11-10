@@ -8,8 +8,10 @@ services:
       JOBSCRAPER_USER: jobscraper
       JOBSCRAPER_PASSWORD_FILE: /run/secrets/db_password
       JOBSCRAPER_INTERVAL_SECONDS: 43200 # Run scraping every 12 hours
+    secrets:
+        - db_password
     volumes:
-      - path/to/config.json:/opt/jobscraper/config.json:ro
+      - ./run/config.json:/opt/jobscraper/config.json:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -19,6 +21,8 @@ services:
         POSTGRES_DB: jobscraper
         POSTGRES_USER: jobscraper
         POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      secrets:
+        - db_password
       volumes:
         - postgres_data:/var/lib/postgresql/data
       healthcheck:
@@ -32,4 +36,4 @@ volumes:
 
 secrets:
   db_password:
-    file: /path/to/password/file
+    file: ./.secrets/db_password
