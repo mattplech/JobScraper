@@ -8,6 +8,8 @@
 
 Projekt Job Scraper jsem založil, abych sjednotil nabídky práce z různých webů na jednom místě a usnadnil si hledání pozice, která by mi vyhovovala. Zároveň slouží také jako portfoliový projekt, kde prezentuji své dovednosti v oblasti vývoje softwaru.
 
+Tento projekt byl vyvinut s asistencí AI agenta, který pomohl s generací kódu, laděním a dokumentací.
+
 </div>
 
 ## Podporované weby

@@ -8,6 +8,8 @@
 
 I started Job Scraper to bring job offers from multiple sites together in one place and make it easier for me to find a role that suits me. It also serves as a portfolio project showcasing my software development skills.
 
+This project was developed with assistance from AI coding agents to help with code generation, debugging and documentation.
+
 </div>
 
 ## Supported Sites
